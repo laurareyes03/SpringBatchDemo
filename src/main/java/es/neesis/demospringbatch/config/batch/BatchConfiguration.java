@@ -1,9 +1,13 @@
 package es.neesis.demospringbatch.config.batch;
 
 import es.neesis.demospringbatch.listener.UserStepInicialExecutionListener;
+import es.neesis.demospringbatch.model.Persona;
+import es.neesis.demospringbatch.model.PersonaBuilder;
+import es.neesis.demospringbatch.processor.PersonaProcessor;
 import es.neesis.demospringbatch.processor.UserEditProcessor;
 import es.neesis.demospringbatch.tasklet.ShowUserInfoTasklet;
 import es.neesis.demospringbatch.tasklet.insertPreloadDataTasklet;
+import es.neesis.demospringbatch.writer.PersonaWriter;
 import es.neesis.demospringbatch.writer.UserUpdaterWriter;
 import es.neesis.demospringbatch.writer.UserWriter;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +92,9 @@ public class BatchConfiguration {
         return new UserEditProcessor();
     }
 
+    @Bean
+    public PersonaProcessor personaProcessor() { return new PersonaProcessor(); }
+
 
     @Bean
     public ItemWriter<UserEntity> writer(DataSource dataSource) {
@@ -100,13 +107,17 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Job importUserJob(UserExecutionListener listener, Step stepInicial, Step step1, Step step2, Step step3) {
+    public ItemWriter<Persona> personaWriter() { return new PersonaWriter(); }
+
+    @Bean
+    public Job importUserJob(UserExecutionListener listener, Step stepInicial, Step step1, Step step2, Step step3, Step step4) {
         return jobBuilderFactory.get("importUserJob")
                 .listener(listener)
                 .start(stepInicial)
                 .next(step1)
                 .next(step2)
                 .next(step3)
+                .next(step4)
                 .build();
     }
 
@@ -142,6 +153,16 @@ public class BatchConfiguration {
     public Step step3(ShowUserInfoTasklet showUserInfoTasklet) {
         return stepBuilderFactory.get("step3")
                 .tasklet(showUserInfoTasklet)
+                .build();
+    }
+
+    @Bean
+    public Step step4(ItemReader<User> readerBDD, ItemWriter<Persona> personaWriter, ItemProcessor<User, Persona> personaProcessor) {
+        return stepBuilderFactory.get("step4")
+                .<User, Persona>chunk(2) // El processor se ejecutará cada 2 registros de manera secuencial
+                .reader(readerBDD)
+                .processor(personaProcessor)
+                .writer(personaWriter)
                 .build();
     }
 
