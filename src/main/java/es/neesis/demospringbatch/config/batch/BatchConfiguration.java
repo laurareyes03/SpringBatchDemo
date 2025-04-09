@@ -2,6 +2,7 @@ package es.neesis.demospringbatch.config.batch;
 
 import es.neesis.demospringbatch.processor.UserEditProcessor;
 import es.neesis.demospringbatch.tasklet.ShowUserInfoTasklet;
+import es.neesis.demospringbatch.tasklet.insertPreloadDataTasklet;
 import es.neesis.demospringbatch.writer.UserUpdaterWriter;
 import es.neesis.demospringbatch.writer.UserWriter;
 import lombok.RequiredArgsConstructor;
@@ -98,12 +99,20 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Job importUserJob(UserExecutionListener listener, Step step1, Step step2, Step step3) {
+    public Job importUserJob(UserExecutionListener listener, Step stepInicial, Step step1, Step step2, Step step3) {
         return jobBuilderFactory.get("importUserJob")
                 .listener(listener)
-                .start(step1)
+                .start(stepInicial)
+                .next(step1)
                 .next(step2)
                 .next(step3)
+                .build();
+    }
+
+    @Bean
+    public Step stepInicial(insertPreloadDataTasklet insertPreloadDataTasklet) {
+        return stepBuilderFactory.get("stepInicial")
+                .tasklet(insertPreloadDataTasklet)
                 .build();
     }
 
