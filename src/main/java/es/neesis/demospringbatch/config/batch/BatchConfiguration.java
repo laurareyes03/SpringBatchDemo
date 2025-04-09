@@ -1,5 +1,6 @@
 package es.neesis.demospringbatch.config.batch;
 
+import es.neesis.demospringbatch.listener.UserStepInicialExecutionListener;
 import es.neesis.demospringbatch.processor.UserEditProcessor;
 import es.neesis.demospringbatch.tasklet.ShowUserInfoTasklet;
 import es.neesis.demospringbatch.tasklet.insertPreloadDataTasklet;
@@ -110,8 +111,9 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Step stepInicial(insertPreloadDataTasklet insertPreloadDataTasklet) {
+    public Step stepInicial(UserStepInicialExecutionListener userStepInicialExecutionListener, insertPreloadDataTasklet insertPreloadDataTasklet) {
         return stepBuilderFactory.get("stepInicial")
+                .listener(userStepInicialExecutionListener)
                 .tasklet(insertPreloadDataTasklet)
                 .build();
     }
