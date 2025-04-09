@@ -60,15 +60,15 @@ public class BatchConfiguration {
                 .rowMapper((rs, index) -> {
                     User user = new User();
                     user.setId(rs.getString("id"));
-                    user.setUsername("username");
-                    user.setPassword("password");
-                    user.setEmail("email");
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
+                    user.setEmail(rs.getString("email"));
 
                     String fullname = rs.getString("fullname");
                     if(fullname != null) {
                         String[] parts = fullname.trim().split(" ", 2);
                         user.setName(parts[0]);
-                        user.setSurname(parts[1]);
+                        user.setSurname(parts.length > 1 ? parts[1] : "");
                     }
 
                     return user;
