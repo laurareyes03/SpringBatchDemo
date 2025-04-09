@@ -45,7 +45,7 @@ public class BatchConfiguration {
                 .resource(new ClassPathResource("sample.csv"))
                 .linesToSkip(1)
                 .delimited()
-                .names("id", "username", "password", "email")
+                .names("id", "username", "password", "email", "name", "surname")
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<User>() {{
                     setTargetType(User.class);
                 }}).build();
@@ -56,8 +56,23 @@ public class BatchConfiguration {
         return new JdbcCursorItemReaderBuilder<User>()
                 .name("readerBDD")
                 .dataSource(dataSource)
-                .sql("SELECT id, username, password, email FROM users ")
-                .rowMapper(new BeanPropertyRowMapper<>(User.class))
+                .sql("SELECT id, username, password, email, fullname FROM users ")
+                .rowMapper((rs, index) -> {
+                    User user = new User();
+                    user.setId(rs.getString("id"));
+                    user.setUsername("username");
+                    user.setPassword("password");
+                    user.setEmail("email");
+
+                    String fullname = rs.getString("fullname");
+                    if(fullname != null) {
+                        String[] parts = fullname.trim().split(" ", 2);
+                        user.setName(parts[0]);
+                        user.setSurname(parts[1]);
+                    }
+
+                    return user;
+                })
                 .build();
     }
 

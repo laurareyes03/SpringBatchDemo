@@ -14,6 +14,7 @@ public class UserProcessor implements ItemProcessor<User, UserEntity> {
                 .username(user.getUsername())
                 .password(user.getPassword())
                 .email(user.getEmail())
+                .fullname(user.getName() + " " + user.getSurname())
                 .build();
     }
 }

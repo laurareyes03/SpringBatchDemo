@@ -30,7 +30,7 @@ public class UserUpdaterWriter implements ItemWriter<UserEntity> {
     public void write(List<? extends UserEntity> list) throws Exception {
         JdbcBatchItemWriter<UserEntity> builder = new JdbcBatchItemWriterBuilder<UserEntity>()
             .beanMapped()
-            .sql("UPDATE users SET username = :username, password = :password, email = :email " +
+            .sql("UPDATE users SET username = :username, password = :password, email = :email, fullname = :fullname " +
                     "WHERE id = :id ")
             .dataSource(dataSource)
             .build();
